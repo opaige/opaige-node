@@ -29,9 +29,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/HideOsLite/opaige-node.git"
+    "url": "git+https://github.com/opaige/opaige-node.git"
   },
   "bugs": {
-    "url": "https://github.com/HideOsLite/opaige-node/issues"
+    "url": "https://github.com/opaige/opaige-node/issues"
   }
 }
