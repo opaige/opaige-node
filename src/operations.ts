@@ -57,6 +57,16 @@ export class Operations {
     return this.http.request("POST", `/documents`, { query: { "format": params.format }, body: params.body });
   }
 
+  /** Your government fee balance, and what each route asks for. `GET /fee-balance` */
+  getFeeBalance(): Promise<any> {
+    return this.http.request("GET", `/fee-balance`, { query: undefined });
+  }
+
+  /** Ask to add to the balance by bank transfer; a person confirms the money before it counts. `POST /fee-balance/top-ups` */
+  createFeeTopUp(params: { body: Json; idempotencyKey?: string }): Promise<any> {
+    return this.http.request("POST", `/fee-balance/top-ups`, { query: undefined, body: params.body, idempotencyKey: params.idempotencyKey });
+  }
+
   /** Every inconsistency in a whole visa file. `POST /file-review` */
   reviewFile(params: { body?: Json; file?: Blob | Uint8Array; filename?: string; fields?: Record<string, string>; idempotencyKey?: string } = {}): Promise<any> {
     return this.http.request("POST", `/file-review`, { query: undefined, body: params.body, file: params.file, filename: params.filename, fields: params.fields, idempotencyKey: params.idempotencyKey });
@@ -85,36 +95,6 @@ export class Operations {
   /** Every case billed, due or paid. `GET /invoices` */
   listInvoices(params: { status?: string | number; from?: string | number; to?: string | number } = {}): Promise<any> {
     return this.http.request("GET", `/invoices`, { query: { "status": params.status, "from": params.from, "to": params.to } });
-  }
-
-  /** Your lodgements, newest first. `GET /lodgements` */
-  listLodgements(): Promise<any> {
-    return this.http.request("GET", `/lodgements`, { query: undefined });
-  }
-
-  /** Fill a visa application on the government portal, parked before the declarations (au-600, au-500) or the photo and signature (us-ds160). `POST /lodgements` */
-  createLodgement(params: { body: Json; idempotencyKey?: string }): Promise<any> {
-    return this.http.request("POST", `/lodgements`, { query: undefined, body: params.body, idempotencyKey: params.idempotencyKey });
-  }
-
-  /** Where a lodgement stands, with the government reference once there is one. `GET /lodgements/{id}` */
-  getLodgement(params: { id: string }): Promise<any> {
-    return this.http.request("GET", `/lodgements/${encodeURIComponent(params.id)}`, { query: undefined });
-  }
-
-  /** Attach supporting documents. `POST /lodgements/{id}/documents` */
-  attachLodgementDocuments(params: { id: string; body: Json }): Promise<any> {
-    return this.http.request("POST", `/lodgements/${encodeURIComponent(params.id)}/documents`, { query: undefined, body: params.body });
-  }
-
-  /** Lodge and pay the government fee (requires authorize: true). `POST /lodgements/{id}/submit` */
-  submitLodgement(params: { id: string; body: Json; idempotencyKey?: string }): Promise<any> {
-    return this.http.request("POST", `/lodgements/${encodeURIComponent(params.id)}/submit`, { query: undefined, body: params.body, idempotencyKey: params.idempotencyKey });
-  }
-
-  /** The questions a DS-160 lodgement answers, as a case asks them. `GET /lodgements/questions` */
-  lodgementQuestions(params: { visa?: string | number; purpose?: string | number } = {}): Promise<any> {
-    return this.http.request("GET", `/lodgements/questions`, { query: { "visa": params.visa, "purpose": params.purpose } });
   }
 
   /** Who on a flight needs a visa, and by when to file. `POST /passengers/check` */
@@ -167,6 +147,61 @@ export class Operations {
     return this.http.request("GET", `/rules/notices`, { query: { "since": params.since } });
   }
 
+  /** Prepare a skilled application (Australia 189/190/491, Canada Express Entry, Germany EU Blue Card, UK Skilled Worker): every field filled or marked missing, the claim worked from what the profile proves, each fact tied to its document (billed as one form). `POST /skilled/applications` */
+  prepareSkilledApplication(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/skilled/applications`, { query: undefined, body: params.body });
+  }
+
+  /** Check EU Blue Card eligibility for Germany (qualification, job offer, salary threshold). `POST /skilled/blue-card-check` */
+  checkBlueCard(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/skilled/blue-card-check`, { query: undefined, body: params.body });
+  }
+
+  /** The documents a Germany EU Blue Card application asks for, tailored to the candidate. `POST /skilled/blue-card-checklist` */
+  blueCardChecklist(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/skilled/blue-card-checklist`, { query: undefined, body: params.body });
+  }
+
+  /** Score a candidate on Canada's Express Entry Comprehensive Ranking System (CRS), out of 1200. `POST /skilled/crs-check` */
+  checkCrsPoints(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/skilled/crs-check`, { query: undefined, body: params.body });
+  }
+
+  /** The documents an Australian skilled application (189, 190, 491) asks for, tailored to the applicant. `POST /skilled/document-checklist` */
+  skilledDocumentChecklist(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/skilled/document-checklist`, { query: undefined, body: params.body });
+  }
+
+  /** The documents a Canada Express Entry application (FSW, CEC, FST) asks for, tailored to the candidate. `POST /skilled/express-entry-checklist` */
+  expressEntryChecklist(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/skilled/express-entry-checklist`, { query: undefined, body: params.body });
+  }
+
+  /** Check US H-1B eligibility: specialty occupation, degree or 3-for-1 equivalency, prevailing wage level, cap pool and weighted-selection entries. `POST /skilled/h1b-check` */
+  checkH1b(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/skilled/h1b-check`, { query: undefined, body: params.body });
+  }
+
+  /** The documents a US H-1B petition is built from, tailored to the case. `POST /skilled/h1b-checklist` */
+  h1bChecklist(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/skilled/h1b-checklist`, { query: undefined, body: params.body });
+  }
+
+  /** Score a person on Australia's General Skilled Migration points test (subclasses 189, 190, 491). `POST /skilled/points-check` */
+  checkSkilledPoints(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/skilled/points-check`, { query: undefined, body: params.body });
+  }
+
+  /** Check UK Skilled Worker eligibility (sponsor, skill level, and the higher of the general threshold and the going rate). `POST /skilled/uk-skilled-worker-check` */
+  checkSkilledWorker(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/skilled/uk-skilled-worker-check`, { query: undefined, body: params.body });
+  }
+
+  /** The documents a UK Skilled Worker application asks for, tailored to the candidate. `POST /skilled/uk-skilled-worker-checklist` */
+  ukSkilledWorkerChecklist(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/skilled/uk-skilled-worker-checklist`, { query: undefined, body: params.body });
+  }
+
   /** Admitted students, with the visa stage where each agreed to share it. `GET /students` */
   listStudents(): Promise<any> {
     return this.http.request("GET", `/students`, { query: undefined });
@@ -185,6 +220,61 @@ export class Operations {
   /** A student’s money against the study country’s rules (GB, CA, AU, US), each finding with its source. `POST /students/funds-check` */
   studentFundsCheck(params: { body: Json }): Promise<any> {
     return this.http.request("POST", `/students/funds-check`, { query: undefined, body: params.body });
+  }
+
+  /** Your submissions, newest first. `GET /submissions` */
+  listSubmissions(): Promise<any> {
+    return this.http.request("GET", `/submissions`, { query: undefined });
+  }
+
+  /** Fill a visa application on the government portal, stopping before the declarations (au-600, au-500), at the applicant's signature (us-ds160), or completed with its reference (fr-schengen). `POST /submissions` */
+  createSubmission(params: { body: Json; idempotencyKey?: string }): Promise<any> {
+    return this.http.request("POST", `/submissions`, { query: undefined, body: params.body, idempotencyKey: params.idempotencyKey });
+  }
+
+  /** Where a submission stands, with the government reference once there is one. `GET /submissions/{id}` */
+  getSubmission(params: { id: string }): Promise<any> {
+    return this.http.request("GET", `/submissions/${encodeURIComponent(params.id)}`, { query: undefined });
+  }
+
+  /** us-ds160 with code_by partner: the US site's security code your staff read in code.image. `POST /submissions/{id}/code` */
+  sendSubmissionCode(params: { id: string; body: Json }): Promise<any> {
+    return this.http.request("POST", `/submissions/${encodeURIComponent(params.id)}/code`, { query: undefined, body: params.body });
+  }
+
+  /** Attach supporting documents. `POST /submissions/{id}/documents` */
+  attachSubmissionDocuments(params: { id: string; body: Json }): Promise<any> {
+    return this.http.request("POST", `/submissions/${encodeURIComponent(params.id)}/documents`, { query: undefined, body: params.body });
+  }
+
+  /** us-ds160: the US site's own PDF once submitted: the confirmation, or the full application as submitted. `GET /submissions/{id}/filed/{kind}` */
+  getFiledDocument(params: { id: string; kind: string }): Promise<any> {
+    return this.http.request("GET", `/submissions/${encodeURIComponent(params.id)}/filed/${encodeURIComponent(params.kind)}`, { query: undefined });
+  }
+
+  /** Submit and pay the government fee (requires authorize: true). `POST /submissions/{id}/submit` */
+  submitAndPay(params: { id: string; body: Json; idempotencyKey?: string }): Promise<any> {
+    return this.http.request("POST", `/submissions/${encodeURIComponent(params.id)}/submit`, { query: undefined, body: params.body, idempotencyKey: params.idempotencyKey });
+  }
+
+  /** us-ds160: a hosted link where the applicant completes what you do not hold, with their passport and photo, and signs. `POST /submissions/intakes` */
+  createIntake(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/submissions/intakes`, { query: undefined, body: params.body });
+  }
+
+  /** Whether the applicant has finished, and the submission it became. `GET /submissions/intakes/{id}` */
+  getIntake(params: { id: string }): Promise<any> {
+    return this.http.request("GET", `/submissions/intakes/${encodeURIComponent(params.id)}`, { query: undefined });
+  }
+
+  /** The questions a DS-160 submission answers, as a case asks them. `GET /submissions/questions` */
+  submissionQuestions(params: { visa?: string | number; purpose?: string | number } = {}): Promise<any> {
+    return this.http.request("GET", `/submissions/questions`, { query: { "visa": params.visa, "purpose": params.purpose } });
+  }
+
+  /** us-ds160: open an application already on the US site with its recovery details and print its confirmation again (not billed). `POST /submissions/retrieve` */
+  retrieveDs160(params: { body: Json; idempotencyKey?: string }): Promise<any> {
+    return this.http.request("POST", `/submissions/retrieve`, { query: undefined, body: params.body, idempotencyKey: params.idempotencyKey });
   }
 
   /** Trips and where each case stands. `GET /trips` */
