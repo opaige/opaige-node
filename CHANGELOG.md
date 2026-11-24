@@ -2,6 +2,17 @@
 
 This library follows [semantic versioning](https://semver.org). The API is versioned by date; see the README.
 
+## 2.1.0 (2026-11-25)
+
+- `readPassport`: a passport read from a photo or scan of its identity page and machine-readable zone (POST /passports). Clean fields:
+  names, passport number, nationality and issuing state as two-letter codes, dates as yyyy-mm-dd; `read` and `unread` list them.
+- `readIdCard`: Pakistan's CNIC and NICOP read from photos (POST /id-cards): the identity number, name, father's or husband's name,
+  gender, dates, family number and English addresses, checked for consistency.
+- `getSubmissionAccount`: the government portal sign-in for a UK or Canada submission, read fresh each time.
+- Website applications: listVisitSlots, submitSiteApplication, trackSiteApplication, joinSiteList, listSiteApplications, getMemberCard.
+- Uploads: the API now reads a file's type from its bytes, so images sent through the library (which labels every upload as a
+  PDF) are read as images.
+
 ## Unreleased
 
 - The repository moved to the Opaige organisation: github.com/opaige. Old links redirect.

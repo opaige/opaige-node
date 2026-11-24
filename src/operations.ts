@@ -7,6 +7,21 @@ export type Json = Record<string, any>;
 export class Operations {
   constructor(protected readonly http: Requester) {}
 
+  /** Applications received from your website, newest first. `GET /applications` */
+  listSiteApplications(): Promise<any> {
+    return this.http.request("GET", `/applications`, { query: undefined });
+  }
+
+  /** An application from an agency's own website: travellers on the client list and the documents, waiting in Online applications for Start. `POST /applications` */
+  submitSiteApplication(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/applications`, { query: undefined, body: params.body });
+  }
+
+  /** From an agency's own website: where an application is, by its reference and the phone number it was sent with. `POST /applications/track` */
+  trackSiteApplication(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/applications/track`, { query: undefined, body: params.body });
+  }
+
   /** A day’s appointments with the file state and the counter stage. `GET /appointments` */
   listAppointments(params: { date?: string | number } = {}): Promise<any> {
     return this.http.request("GET", `/appointments`, { query: { "date": params.date } });
@@ -52,7 +67,7 @@ export class Operations {
     return this.http.request("POST", `/cases/${encodeURIComponent(params.id)}/file`, { query: undefined });
   }
 
-  /** An itinerary, cover letter, submission brief or third-party letter. `POST /documents` */
+  /** An itinerary (free), or a cover letter, submission brief or third-party letter ($1). `POST /documents` */
   makeDocument(params: { format?: string | number; body: Json }): Promise<any> {
     return this.http.request("POST", `/documents`, { query: { "format": params.format }, body: params.body });
   }
@@ -92,9 +107,19 @@ export class Operations {
     return this.http.request("POST", `/forms`, { query: { "format": params.format }, body: params.body });
   }
 
+  /** A national identity card read from photos (Pakistan CNIC and NICOP). `POST /id-cards` */
+  readIdCard(params: { file?: Blob | Uint8Array; filename?: string; fields?: Record<string, string> } = {}): Promise<any> {
+    return this.http.request("POST", `/id-cards`, { query: undefined, file: params.file, filename: params.filename, fields: params.fields });
+  }
+
   /** Every case billed, due or paid. `GET /invoices` */
   listInvoices(params: { status?: string | number; from?: string | number; to?: string | number } = {}): Promise<any> {
     return this.http.request("GET", `/invoices`, { query: { "status": params.status, "from": params.from, "to": params.to } });
+  }
+
+  /** From an agency's own website: a club member's own card, from the card link the agency sent her. `GET /member-card` */
+  getMemberCard(params: { site?: string | number; card?: string | number } = {}): Promise<any> {
+    return this.http.request("GET", `/member-card`, { query: { "site": params.site, "card": params.card } });
   }
 
   /** Who on a flight needs a visa, and by when to file. `POST /passengers/check` */
@@ -122,6 +147,11 @@ export class Operations {
     return this.http.request("GET", `/passengers/status`, { query: { "ref": params.ref } });
   }
 
+  /** A passport read from a photo or scan of its identity page and machine-readable zone. `POST /passports` */
+  readPassport(params: { file?: Blob | Uint8Array; filename?: string; fields?: Record<string, string> } = {}): Promise<any> {
+    return this.http.request("POST", `/passports`, { query: undefined, file: params.file, filename: params.filename, fields: params.fields });
+  }
+
   /** What a passport needs for a destination. `GET /requirements` */
   checkRequirements(params: { passport?: string | number; destination?: string | number; residence?: string | number; stayDays?: string | number } = {}): Promise<any> {
     return this.http.request("GET", `/requirements`, { query: { "passport": params.passport, "destination": params.destination, "residence": params.residence, "stay_days": params.stayDays } });
@@ -145,6 +175,11 @@ export class Operations {
   /** Rule changes announced, in force or coming up. `GET /rules/notices` */
   listRuleNotices(params: { since?: string | number } = {}): Promise<any> {
     return this.http.request("GET", `/rules/notices`, { query: { "since": params.since } });
+  }
+
+  /** From an agency's own website: someone asks to be told when something happens (first: the office opening). `POST /site-subscribers` */
+  joinSiteList(params: { body: Json }): Promise<any> {
+    return this.http.request("POST", `/site-subscribers`, { query: undefined, body: params.body });
   }
 
   /** Prepare a skilled application (Australia 189/190/491, Canada Express Entry, Germany EU Blue Card, UK Skilled Worker): every field filled or marked missing, the claim worked from what the profile proves, each fact tied to its document (billed as one form). `POST /skilled/applications` */
@@ -227,7 +262,7 @@ export class Operations {
     return this.http.request("GET", `/submissions`, { query: undefined });
   }
 
-  /** Fill a visa application on the government portal, stopping before the declarations (au-600, au-500), at the applicant's signature (us-ds160), or completed with its reference (fr-schengen). `POST /submissions` */
+  /** Fill a visa application on the government portal, stopping before the declarations (au-600, au-500), at the applicant's signature (us-ds160), at the declaration with its GWF reference (uk-visitor), or completed with its reference (fr-schengen). `POST /submissions` */
   createSubmission(params: { body: Json; idempotencyKey?: string }): Promise<any> {
     return this.http.request("POST", `/submissions`, { query: undefined, body: params.body, idempotencyKey: params.idempotencyKey });
   }
@@ -235,6 +270,11 @@ export class Operations {
   /** Where a submission stands, with the government reference once there is one. `GET /submissions/{id}` */
   getSubmission(params: { id: string }): Promise<any> {
     return this.http.request("GET", `/submissions/${encodeURIComponent(params.id)}`, { query: undefined });
+  }
+
+  /** ca-visitor and uk-visitor: the portal sign-in, and sign_url, the applicant's page to accept the declaration. `GET /submissions/{id}/account` */
+  getSubmissionAccount(params: { id: string }): Promise<any> {
+    return this.http.request("GET", `/submissions/${encodeURIComponent(params.id)}/account`, { query: undefined });
   }
 
   /** us-ds160 with code_by partner: the US site's security code your staff read in code.image. `POST /submissions/{id}/code` */
@@ -300,6 +340,11 @@ export class Operations {
   /** This month’s paid API use and what it comes to. `GET /usage` */
   getUsage(params: { month?: string | number } = {}): Promise<any> {
     return this.http.request("GET", `/usage`, { query: { "month": params.month } });
+  }
+
+  /** From an agency's own website: the office visit times it may offer, from the agency's client hours, free times only. `GET /visit-slots` */
+  listVisitSlots(params: { site?: string | number } = {}): Promise<any> {
+    return this.http.request("GET", `/visit-slots`, { query: { "site": params.site } });
   }
 
 }
